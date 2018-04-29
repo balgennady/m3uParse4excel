@@ -2,7 +2,8 @@
 'глобальные переменные
     Public InputList As Worksheet
     Public OutputList As Worksheet
-    Public outListName As String
+    Public outListName As String ' имя листа с таблицей с выходыми данными
+    Public имя_табл As String
 ' константы
     Public Const INF As String = "#EXTINF:"
     Public Const VLC As String = "#EXTVLCOPT:"
@@ -20,6 +21,8 @@ Sub main()
 End Sub
 
 Sub ini()
+    Debug.Print "ini ..."
+
     outListName = "m3u"
     Call создание_листа(outListName)
     Set InputList = ThisWorkbook.Sheets("Лист1")
@@ -32,10 +35,8 @@ Function посл_запол_стр(столбец As Integer, лист As Works
 End Function
 
 Sub удал_пустой_стр(столбец As Integer)
-
     ' переменные
-    Dim счетчик As Integer
-    
+    Dim счетчик As Integer 
     ' инициализация
     счетчик = 0
     
@@ -52,15 +53,13 @@ Sub удал_пустой_стр(столбец As Integer)
 End Sub
 
 Sub удал_стр()
-
     ' переменные
      Dim счетчик As Integer
      Dim столбец As Integer
      Dim посл_стр As Integer
      Dim диапозон As Range
      Dim строка As String
-     Dim подстрока As String
-     
+     Dim подстрока As String 
     ' инициализация
      столбец = 1
      посл_стр = посл_запол_стр(столбец, InputList)
@@ -87,9 +86,9 @@ End Sub
 
 Sub валидация_данных()
     ' константы
-     Const подстрока1 = "#EXT"
-     Const подстрока2 = "http"
-     Const подстрока3 = "rtmp"
+     Const подстрока1 = "#EXT" 'todo: перенести в глобальную область
+     Const подстрока2 = "http" 'todo: перенести в глобальную область
+     Const подстрока3 = "rtmp" 'todo: перенести в глобальную область
     ' переменные
      Dim диапозон As Range
      Dim счетчик As Integer, посл_стр As Integer, столбец As Integer
@@ -104,7 +103,7 @@ Sub валидация_данных()
     For i = посл_стр To 1 Step -1
         
         строка = диапозон(i, 1)
-        подстрока = Mid(строка, 1, 4)
+        подстрока = Mid(строка, 1, 4) 'todo:заменить на переменные
 
         If подстрока = подстрока1 And f1 = False Then
             f1 = True
@@ -126,37 +125,77 @@ Sub заплнение_табл()
     ' переменные
         Dim стр_поиска      As String
         Dim стр_исходная    As String
+        Dim нач_позиция     As Integer
         Dim символов        As Integer
-        Dim строка          As Range
+        Dim с_позиции       As Integer
+        Dim индекс_столбца  As Integer
+        Dim индекс_строки   As Integer
+        Dim строка          As Integer
         Dim столбец         As Integer
-        Dim первая_стр      As Integer 
+        Dim первая_стр      As Integer
         Dim диапозон        As Range
-        Dim таблица         As Object
+        Dim таблица         As ListObject
         Dim название_канала As String
- '        Dim таблица As Object
+    ' ...переменные
+
     ' инициализация
-        стр_поиска = "#EXTINF:"
+        стр_поиска = "#EXTINF:" 'TODO: перенести в глобальную область
         символов = Len(стр_поиска)
         первая_стр = 1
         столбец = 1
         посл_стр = посл_запол_стр(столбец, InputList)
-        Set диапозон = Range(InputList.Cells(первая_стр, столбец), InputList.Cells(посл_стр, столбец))
-        
-    For Each строка In диапозон
-       
-        стр_исходная = строка
-        подстрока = Mid(стр_исходная, 1, символов)
-       
+        нач_позиция = 1
+
+        Set диапозон = Range( _
+            InputList.Cells(первая_стр, столбец), _
+            InputList.Cells(посл_стр, столбец) _
+        )
+        Set таблица = ThisWorkbook.Worksheets(outListName).ListObjects(имя_табл)
+        индекс_столбца = 2
+    
+        строка = 1
+    
+    ' ...инициализация
+    
+    Do While строка <= посл_стр
+
+        ' берем строку ищем подстроку
+        текущая_стр = диапозон(строка, столбец)
+        подстрока = Mid(текущая_стр, нач_позиция, символов)
+
+        'если подстрака совпадает с стройкой для поиска
         If подстрока = стр_поиска Then
-            с_позиции = InStr(1, стр_исходная, ",")
-            название_канала = Mid(стр_исходная, с_позиции + 1)
-            Set таблица = ThisWorkbook.Worksheets("m3u").ListObjects("плэйлист").ListRows.Add
-            таблица.Range(2) = название_канала
- '            строка.Interior.ColorIndex = 5
+           ' выделяем название канала
+            с_позиции = InStr(нач_позиция, текущая_стр, ",")
+            название_канала = Mid(текущая_стр, с_позиции + 1)
+            
+            'проверяем проверяем первую строчку таблици на наличие данных
+            кол_записей = Range(имя_табл).Rows.Count  'определям наличие записей в таблице
+            'если ячейка пустая
+            If Range(имя_табл).Cells(кол_записей, 2) = Empty Then
+                Range(имя_табл).Cells(кол_записей, 2) = название_канала 'в нее пишем значение
+            'если ячейка непустая
+            Else
+                Range(имя_табл).Cells(кол_записей + 1, 2) = название_канала 'пишем значение в следующую
+            End If
+            
+        'если подстрака не совпадает с стройкой для поиска
         Else
-            строка.Interior.ColorIndex = 4
+            'проверяем проверяем первую строчку таблици на наличие данных
+            кол_записей = Range(имя_табл).Rows.Count  'определям наличие записей в таблице
+            'если ячейка пустая
+            If Range(имя_табл).Cells(кол_записей, 3) = Empty Then
+                Range(имя_табл).Cells(кол_записей, 3) = текущая_стр 'в нее пишем значение
+            'если ячейка непустая
+            Else
+                Range(имя_табл).Cells(кол_записей + 1, 3) = текущая_стр 'пишем значение в следующую
+            End If     
         End If
-    Next
+        
+       строка = строка + 1
+    
+    Loop
+
 End Sub
 
 Sub название_канала()
@@ -210,6 +249,8 @@ Sub создание_таблицы()
         Dim ТаблицаПлэйлиста_об As ListObject
         Dim СписокСтрок         As ListRow
         Dim счетчик             As Integer
+    ' инициализация
+        имя_табл = "плэйлист"
     
     OutputList.ListObjects.Add( _
         xlSrcRange, _
@@ -218,7 +259,7 @@ Sub создание_таблицы()
             OutputList.Cells(1, 5) _
             ), , _
         xlNo _
-    ).Name = "плэйлист"
+    ).Name = имя_табл
 
     'Изменяем названия граф
     OutputList.Cells(1, 1) = "id"
