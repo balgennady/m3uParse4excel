@@ -274,3 +274,21 @@ Sub создание_таблицы()
 
 End Sub
 
+Sub autofit()
+    ' переменные
+     Dim строка As Integer
+     Dim колонка As Integer
+     Dim tbl As ListObject 'таблица с значениями
+    ' ...переменные
+    ' инициализация
+     строка = 1
+     колонка = 3
+    ' ...инициализация
+
+    'автоширина по всей колонки
+    ' tbl.DataBodyRange(1, 3).EntireColumn.autofit
+    'автоширина по определенной ячейки колонки
+    tbl.DataBodyRange(строка, колонка).Columns.autofit
+
+End Sub
+
