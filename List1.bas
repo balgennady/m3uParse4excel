@@ -5,7 +5,7 @@
     Public outListName As String ' имя листа с таблицей с выходыми данными
     Public имя_табл As String
 ' константы
-    Public Const INF As String = "#EXTINF:"
+    Public Const INF As String = "#EXTINF"
     Public Const VLC As String = "#EXTVLCOPT:"
     Public Const HTTP As String = "http://"
     Public Const RTMP As String = "rtmp://"
@@ -85,10 +85,6 @@ Sub удал_стр()
 End Sub
 
 Sub валидация_данных()
-    ' константы
-     Const подстрока1 = "#EXT" 'todo: перенести в глобальную область
-     Const подстрока2 = "http" 'todo: перенести в глобальную область
-     Const подстрока3 = "rtmp" 'todo: перенести в глобальную область
     ' переменные
      Dim диапозон As Range
      Dim счетчик As Integer, посл_стр As Integer, столбец As Integer
@@ -105,10 +101,10 @@ Sub валидация_данных()
         строка = диапозон(i, 1)
         подстрока = Mid(строка, 1, 4) 'todo:заменить на переменные
 
-        If подстрока = подстрока1 And f1 = False Then
+        If подстрока = INF And f1 = False Then
             f1 = True
             f2 = False
-        ElseIf (подстрока = подстрока2 Or подстрока = подстрока3) And f2 = False Then
+        ElseIf (подстрока = HTTP Or подстрока = RTMP) And f2 = False Then
             f2 = True
             f1 = False
         Else
