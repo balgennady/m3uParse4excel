@@ -145,7 +145,7 @@ Sub заплнение_табл()
             InputList.Cells(первая_стр, столбец), _
             InputList.Cells(посл_стр, столбец) _
         )
-        Set таблица = ThisWorkbook.Worksheets(outListName).ListObjects(имя_табл)
+        Set таблица = ThisWorkbook.Worksheets(outListName).ListObjects(имя_табл) ' fixme: не используется
         индекс_столбца = 2
     
         строка = 1
@@ -270,20 +270,7 @@ Sub создание_таблицы()
 End Sub
 
 Sub autofit()
-    ' переменные
-     Dim строка As Integer
-     Dim колонка As Integer
-     Dim tbl As ListObject 'таблица с значениями
-    ' ...переменные
-    ' инициализация
-     строка = 1
-     колонка = 3
-    ' ...инициализация
-
-    'автоширина по всей колонки
-    ' tbl.DataBodyRange(1, 3).EntireColumn.autofit
-    'автоширина по определенной ячейки колонки
-    tbl.DataBodyRange(строка, колонка).Columns.autofit
-
+    Range(имя_табл).Cells(1, 2).EntireColumn.autofit
+    Range(имя_табл).Cells(1, 3).Columns.autofit
 End Sub
 
